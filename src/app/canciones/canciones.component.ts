@@ -19,6 +19,8 @@ export class CancionesComponent implements OnInit {
   constructor( private cancionesService: CancionesService) { 
     console.log('CancionesComponent constructor');
     //inicializar atributos
+    this.isValid= false;
+    this.nombreCancion = '';
     this.canciones = [];
     this.cancionSeleccionada = new Cancion(-1,"");   
     //this.mockData();
@@ -61,7 +63,7 @@ export class CancionesComponent implements OnInit {
             this.recargar();
             console.log(`Cancion Eliminada!!!`);
         },error=>{
-          console.warn(`Error al eliminar ${error}` );
+          console.warn('Error al crear %o', error );
         }
       );
     }
@@ -69,24 +71,42 @@ export class CancionesComponent implements OnInit {
 
   crearCancion(){
     console.log(`CancionesComponent crearCancion ${this.nombreCancion}`);
-   if( this.nombreCancion && this.nombreCancion.length > 1){
-     this.isValid = false
-     console.debug('crear cancion $(this.nombreCancion)');
-     this.cancionesService.crear(this.nombreCancion).subscribe(
-       result=>{
-         this.recargar();
-       },error=>{
-        console.warn(`Error al crear ${error}` );
-       }
-       );
+    this.nombreCancion = this.nombreCancion.trim();
 
-     
-   }else{
-     this.isValid=true;
-     console.warn('nombre cancion vacia o no correcta')
-   }
-   
-  }
+    if ( this.nombreCancion.length > 0 ){
+      this.isValid = false;      
+      console.debug(`crear cancion ${this.nombreCancion}`);
+      this.cancionesService.crear( this.nombreCancion ).subscribe(
+        result=>{
+          this.nombreCancion = '';
+          this.recargar();
+        },error=>{
+          console.warn('Error al crear %o', error );
+        }
+      );
+
+    }else{
+      this.isValid = true;
+      console.warn(`nombre cancion vacio o no correcta`);
+    }
+  }//crearCancion
+
+  modificar(index: number){
+    let cancion = this.canciones[index];
+    console.log(`CancionesComponent modificar onfousout cancion: %o`, cancion);
+    if ( cancion.nombre.trim().length > 0 ){
+      this.cancionesService.modificar(cancion).subscribe(
+        result=>{        
+          this.recargar();
+        },error=>{
+          console.warn('Error al modificar %o', error );
+        }
+      );
+    }else{
+      console.warn('Nombre cancion NO valido');
+    }
+  }//modificar
+
 
 /*   mockData(){
     this.canciones.push(new Cancion(1,"The Rolling Stones - Under my thumb"));
